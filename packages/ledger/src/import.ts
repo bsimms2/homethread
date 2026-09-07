@@ -238,7 +238,15 @@ export interface OrderImport {
   dueOn: IsoDate | null;
   status: OrderStatus;
   notes: string;
-  lines: { description: string; qty: number; unitPrice: Cents; unitCost: Cents; stitches: number | null }[];
+  lines: {
+    description: string;
+    qty: number;
+    unitPrice: Cents;
+    unitCost: Cents;
+    stitches: number | null;
+    blankId: string | null;
+    productId: string | null;
+  }[];
   payment: { amount: Cents; method: PaymentMethod; receivedOn: IsoDate } | null;
 }
 
@@ -288,6 +296,8 @@ export function importOrders(recs: Rec[]): { items: OrderImport[]; errors: Impor
       unitPrice: price,
       unitCost: money(r["cost"] ?? ""),
       stitches: stitchesRaw ? int(stitchesRaw) : null,
+      blankId: null,
+      productId: null,
     });
 
     // Payment: first row of an order that carries one wins; "paid" status = full.

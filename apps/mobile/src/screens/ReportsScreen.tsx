@@ -67,9 +67,10 @@ export function ReportsScreen() {
         <Line label="Gross margin" cents={p.grossMargin} bold />
         <Text style={[font.small, { textAlign: "right" }]}>{fmtPct(p.grossMargin, p.revenue)} of revenue</Text>
         <Divider />
-        <Line label="Expenses (receipts)" cents={-p.expenses} />
+        <Line label="Running expenses" cents={-p.expenses} />
         <Line label="Net income" cents={p.netIncome} bold tone="auto" />
-        <Text style={[font.small, { marginTop: 4 }]}>Net = revenue minus receipts. Item cost is her estimate for per-order margin and isn't subtracted twice.</Text>
+        {p.startupExpenses > 0 && <Line label="Startup purchases (not in net)" cents={-p.startupExpenses} />}
+        <Text style={[font.small, { marginTop: 4 }]}>Net = revenue minus running expenses. Startup purchases are tracked as payback on Home. Item cost is her estimate for per-order margin and isn't subtracted twice.</Text>
         <Divider />
         <Line label="Cash actually received" cents={p.cashReceived} />
         <Line label="Still owed on these orders" cents={p.outstanding} />

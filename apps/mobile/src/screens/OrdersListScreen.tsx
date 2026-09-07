@@ -35,10 +35,12 @@ export function OrdersListScreen() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: space.lg, paddingBottom: space.sm, gap: space.sm }}>
+        <Button title="＋ New order" onPress={() => nav.navigate("OrderEdit", {})} />
         <View style={{ flexDirection: "row", gap: space.sm }}>
-          <Button title="＋ New order" onPress={() => nav.navigate("OrderEdit", {})} style={{ flex: 1 }} />
-          <Button title="Customers" kind="secondary" onPress={() => nav.navigate("Customers")} />
-          <Button title="Designs" kind="secondary" onPress={() => nav.navigate("Designs")} />
+          <Button title="Customers" kind="secondary" onPress={() => nav.navigate("Customers")} style={{ flex: 1 }} />
+          <Button title="Price list" kind="secondary" onPress={() => nav.navigate("Products")} style={{ flex: 1 }} />
+          <Button title="Blanks" kind="secondary" onPress={() => nav.navigate("Blanks")} style={{ flex: 1 }} />
+          <Button title="Designs" kind="secondary" onPress={() => nav.navigate("Designs")} style={{ flex: 1 }} />
         </View>
         <Segmented value={filter} options={FILTERS} onChange={setFilter} />
       </View>

@@ -94,6 +94,7 @@ export async function applyImport(p: ImportPreview): Promise<string> {
           note: e.note,
           receiptImagePath: null,
           extractionJson: null,
+          isStartup: false,
         });
       });
     });

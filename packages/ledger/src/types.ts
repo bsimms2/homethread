@@ -62,6 +62,40 @@ export interface OrderLine {
   /** Stitch count of the design on this line, when known. Drives quoting. */
   stitches: number | null;
   position: number;
+  /** Blank consumed by this line (one per qty). Null when none or unknown. */
+  blankId: string | null;
+  /** Price-list product this line was picked from, for reporting. */
+  productId: string | null;
+}
+
+/** One sellable option on her price list: "Wreath sash · Two sides embroidered". */
+export interface Product {
+  id: string;
+  name: string;
+  option: string;
+  /** Finished pieces in this option (a 2-towel set = 2). */
+  qty: number;
+  /** Price for the whole option. */
+  price: Cents;
+  notes: string;
+  position: number;
+  createdAt: string;
+}
+
+/** A purchase of blanks: sashes, towels, bags. Remaining is derived from order lines. */
+export interface Blank {
+  id: string;
+  type: string;
+  style: string;
+  vendor: string;
+  purchasedOn: IsoDate | null;
+  qty: number;
+  totalCost: Cents;
+  unitCost: Cents;
+  /** Manual correction to remaining (negative = lost/damaged/gifted outside an order). */
+  adjust: number;
+  notes: string;
+  createdAt: string;
 }
 
 export interface Order {
@@ -106,5 +140,11 @@ export interface Expense {
   receiptImagePath: string | null;
   /** What the extractor read, verbatim, for audit. JSON string or null. */
   extractionJson: string | null;
+  /**
+   * Startup / one-time investment (machine, first supply run, design files)
+   * rather than a cost of running the business month to month. Kept out of
+   * monthly net and tracked as "startup left to recover" instead.
+   */
+  isStartup: boolean;
   createdAt: string;
 }

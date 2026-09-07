@@ -1,4 +1,5 @@
 import type {
+  Blank,
   Customer,
   Expense,
   ExpenseCategory,
@@ -6,6 +7,7 @@ import type {
   OrderLine,
   OrderStatus,
   Payment,
+  Product,
 } from "@embroidery/ledger";
 import { newId, nowIso } from "../domain/ids";
 import { batch, remove, removeWhere, store, upsert, type Design } from "./store";
@@ -161,6 +163,7 @@ export function saveExpense(e: Omit<Expense, "id" | "createdAt"> & { id?: string
     note: e.note,
     receiptImagePath: e.receiptImagePath,
     extractionJson: e.extractionJson,
+    isStartup: e.isStartup,
     createdAt: e.createdAt ?? existing?.createdAt ?? nowIso(),
   });
   return id;
@@ -228,6 +231,67 @@ export function deleteDesign(id: string): void {
 }
 
 // ---------------------------------------------------------------------------
+// Price list
+
+export function allProducts(): Product[] {
+  return [...store.product].sort((a, b) => a.position - b.position || byText(a.name, b.name));
+}
+
+export function saveProduct(p: Omit<Product, "id" | "createdAt" | "position"> & { id?: string; position?: number; createdAt?: string }): string {
+  const id = p.id ?? newId();
+  const existing = store.product.find((x) => x.id === id);
+  const max = store.product.reduce((m, x) => Math.max(m, x.position), -1);
+  upsert("product", {
+    id,
+    name: p.name.trim(),
+    option: p.option.trim(),
+    qty: Math.max(1, p.qty),
+    price: p.price,
+    notes: p.notes,
+    position: p.position ?? existing?.position ?? max + 1,
+    createdAt: p.createdAt ?? existing?.createdAt ?? nowIso(),
+  });
+  return id;
+}
+
+export function deleteProduct(id: string): void {
+  remove("product", id);
+}
+
+// ---------------------------------------------------------------------------
+// Blanks
+
+export function allBlanks(): Blank[] {
+  return [...store.blank].sort((a, b) => byText(a.type, b.type) || byText(a.style, b.style) || (b.purchasedOn ?? "").localeCompare(a.purchasedOn ?? ""));
+}
+
+export function saveBlank(b: Omit<Blank, "id" | "createdAt"> & { id?: string; createdAt?: string }): string {
+  const id = b.id ?? newId();
+  const existing = store.blank.find((x) => x.id === id);
+  upsert("blank", {
+    id,
+    type: b.type.trim(),
+    style: b.style.trim(),
+    vendor: b.vendor.trim(),
+    purchasedOn: b.purchasedOn,
+    qty: b.qty,
+    totalCost: b.totalCost,
+    unitCost: b.unitCost,
+    adjust: b.adjust,
+    notes: b.notes,
+    createdAt: b.createdAt ?? existing?.createdAt ?? nowIso(),
+  });
+  return id;
+}
+
+export function deleteBlank(id: string): void {
+  batch(() => {
+    for (const l of store.order_line) if (l.blankId === id) upsert("order_line", { ...l, blankId: null });
+    remove("blank", id);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Settings (plain key/value)
 
 export function getSetting(key: string): string | null {
@@ -249,6 +313,8 @@ export interface Backup {
   categories: ExpenseCategory[];
   expenses: Expense[];
   designs: Design[];
+  products?: Product[];
+  blanks?: Blank[];
 }
 
 export function exportAll(): string {
@@ -261,6 +327,8 @@ export function exportAll(): string {
     categories: allCategories(),
     expenses: allExpenses(),
     designs: allDesigns(),
+    products: allProducts(),
+    blanks: allBlanks(),
   };
   return JSON.stringify(b, null, 2);
 }
@@ -273,7 +341,9 @@ export function restoreBackup(b: Backup): void {
     for (const o of b.orders ?? []) upsert("order", o);
     for (const l of b.lines ?? []) upsert("order_line", l);
     for (const p of b.payments ?? []) upsert("payment", p);
-    for (const e of b.expenses ?? []) upsert("expense", e);
+    for (const e of b.expenses ?? []) upsert("expense", { ...e, isStartup: e.isStartup ?? false });
     for (const d of b.designs ?? []) upsert("design", d);
+    for (const p of b.products ?? []) upsert("product", p);
+    for (const bl of b.blanks ?? []) upsert("blank", bl);
   });
 }

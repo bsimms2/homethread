@@ -17,6 +17,8 @@ import { OrderEditScreen } from "./src/screens/OrderEditScreen";
 import { OrderDetailScreen } from "./src/screens/OrderDetailScreen";
 import { CustomersScreen } from "./src/screens/CustomersScreen";
 import { DesignsScreen } from "./src/screens/DesignsScreen";
+import { BlanksScreen } from "./src/screens/BlanksScreen";
+import { ProductsScreen } from "./src/screens/ProductsScreen";
 import { ExpensesListScreen } from "./src/screens/ExpensesListScreen";
 import { ExpenseEditScreen } from "./src/screens/ExpenseEditScreen";
 import { ReportsScreen } from "./src/screens/ReportsScreen";
@@ -54,6 +56,8 @@ function OrdersNav() {
       <OrdersStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: "Order" }} />
       <OrdersStack.Screen name="Customers" component={CustomersScreen} options={{ title: "Customers" }} />
       <OrdersStack.Screen name="Designs" component={DesignsScreen} options={{ title: "Designs" }} />
+      <OrdersStack.Screen name="Blanks" component={BlanksScreen} options={{ title: "Blanks" }} />
+      <OrdersStack.Screen name="Products" component={ProductsScreen} options={{ title: "Price list" }} />
     </OrdersStack.Navigator>
   );
 }

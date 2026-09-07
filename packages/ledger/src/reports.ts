@@ -1,4 +1,4 @@
-import type { Cents, Expense, IsoDate, Order, OrderLine, Payment } from "./types";
+import type { Blank, Cents, Expense, IsoDate, Order, OrderLine, Payment } from "./types";
 import { REVENUE_STATUSES } from "./types";
 
 export interface Period {
@@ -24,11 +24,13 @@ export interface PnL {
   /** Cost of goods sold: sum of line unitCost x qty on revenue orders. */
   cogs: Cents;
   grossMargin: Cents;
-  /** Everything captured as an expense in the period (receipts). */
+  /** Operating expenses in the period (receipts not flagged startup). */
   expenses: Cents;
+  /** Startup / one-time purchases in the period, reported separately. */
+  startupExpenses: Cents;
   /**
-   * revenue - expenses. COGS is *not* also subtracted: her supply receipts
-   * are the real cash cost; unitCost is an estimate used for per-order margin.
+   * revenue - operating expenses. COGS is *not* also subtracted: her supply
+   * receipts are the real cash cost; unitCost is an estimate for per-order margin.
    */
   netIncome: Cents;
   cashReceived: Cents;
@@ -77,8 +79,10 @@ export function profitAndLoss(
     cogs += t.cost;
     outstanding += Math.max(0, t.balance);
   }
-  const periodExpenses = expenses.filter((e) => inPeriod(e.spentOn, period));
+  const inRange = expenses.filter((e) => inPeriod(e.spentOn, period));
+  const periodExpenses = inRange.filter((e) => !e.isStartup);
   const expenseTotal = periodExpenses.reduce((s, e) => s + e.amount, 0);
+  const startupExpenses = inRange.filter((e) => e.isStartup).reduce((s, e) => s + e.amount, 0);
   const cashReceived = payments
     .filter((p) => inPeriod(p.receivedOn, period))
     .reduce((s, p) => s + p.amount, 0);
@@ -96,11 +100,54 @@ export function profitAndLoss(
     cogs,
     grossMargin: revenue - cogs,
     expenses: expenseTotal,
+    startupExpenses,
     netIncome: revenue - expenseTotal,
     cashReceived,
     outstanding,
     byCategory,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Startup payback and blanks
+
+export interface Payback {
+  /** Everything flagged startup, all time. */
+  startupTotal: Cents;
+  /** All-time revenue minus all-time operating expenses, floored at zero. */
+  recovered: Cents;
+  remaining: Cents;
+}
+
+/** How much of the initial investment the business has earned back so far. */
+export function startupPayback(
+  orders: Order[],
+  lines: OrderLine[],
+  payments: Payment[],
+  expenses: Expense[],
+): Payback {
+  const all = profitAndLoss({ from: "0000-01-01", to: "9999-12-31" }, orders, lines, payments, expenses);
+  const startupTotal = expenses.filter((e) => e.isStartup).reduce((s, e) => s + e.amount, 0);
+  const recovered = Math.min(startupTotal, Math.max(0, all.netIncome));
+  return { startupTotal, recovered, remaining: startupTotal - recovered };
+}
+
+export interface BlankStock {
+  blankId: string;
+  /** Units consumed by order lines (any status except quote/cancelled). */
+  used: number;
+  remaining: number;
+  /** Value of what's left at cost. */
+  valueRemaining: Cents;
+}
+
+export function blankStock(blank: Blank, orders: Order[], lines: OrderLine[]): BlankStock {
+  const live = new Set(orders.filter((o) => REVENUE_STATUSES.has(o.status)).map((o) => o.id));
+  const used = lines
+    .filter((l) => l.blankId === blank.id && live.has(l.orderId))
+    .reduce((s, l) => s + l.qty, 0);
+  const remaining = blank.qty - used + blank.adjust;
+  return { blankId: blank.id, used, remaining, valueRemaining: Math.max(0, remaining) * blank.unitCost };
 }
 
 // ---------------------------------------------------------------------------

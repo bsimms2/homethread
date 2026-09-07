@@ -32,6 +32,7 @@ export function ExpenseEditScreen() {
   const [tax, setTax] = React.useState(existing?.tax ?? 0);
   const [categoryId, setCategoryId] = React.useState<string | null>(existing?.categoryId ?? null);
   const [note, setNote] = React.useState(existing?.note ?? "");
+  const [isStartup, setIsStartup] = React.useState(existing?.isStartup ?? false);
 
   React.useEffect(() => {
     nav.setOptions({ title: existing ? "Edit expense" : "New expense" });
@@ -95,6 +96,7 @@ export function ExpenseEditScreen() {
         note,
         receiptImagePath: path,
         extractionJson,
+        isStartup,
       });
       leaveTo(nav, "ExpensesList");
     } catch (e) {
@@ -170,6 +172,13 @@ export function ExpenseEditScreen() {
               value={categoryId ?? ""}
               options={[...categories.map((c) => ({ value: c.id, label: c.name })), { value: "", label: "None" }]}
               onChange={(v) => setCategoryId(v === "" ? null : v)}
+            />
+          </Field>
+          <Field label="Kind" hint="Startup = one-time investment (machine, first supplies, design files). Kept out of monthly net; tracked as payback instead.">
+            <Segmented
+              value={isStartup ? "startup" : "operating"}
+              options={[{ value: "operating", label: "Running cost" }, { value: "startup", label: "Startup" }]}
+              onChange={(v) => setIsStartup(v === "startup")}
             />
           </Field>
           <Field label="Note / items">

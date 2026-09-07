@@ -78,7 +78,7 @@ describe("importCsv orders", () => {
     const jane = r.orders[0]!;
     expect(jane.key).toBe("order|ref|1");
     expect(jane.lines).toHaveLength(2);
-    expect(jane.lines[0]).toEqual({ description: "Mallard hat", qty: 2, unitPrice: 2500, unitCost: 650, stitches: 8200 });
+    expect(jane.lines[0]).toEqual({ description: "Mallard hat", qty: 2, unitPrice: 2500, unitCost: 650, stitches: 8200, blankId: null, productId: null });
     expect(jane.payment).toEqual({ amount: 5000, method: "venmo", receivedOn: "2026-08-09" });
     expect(jane.dueOn).toBe("2026-08-10");
     expect(jane.status).toBe("delivered");

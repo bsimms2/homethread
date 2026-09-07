@@ -1,4 +1,4 @@
-import type { Customer, Expense, ExpenseCategory, Order, OrderLine, Payment } from "@embroidery/ledger";
+import type { Blank, Customer, Expense, ExpenseCategory, Order, OrderLine, Payment, Product } from "@embroidery/ledger";
 import { supabase } from "./supabase";
 
 /**
@@ -33,11 +33,13 @@ export interface Tables {
   expense: Expense[];
   design: Design[];
   setting: Setting[];
+  product: Product[];
+  blank: Blank[];
 }
 export type TableName = keyof Tables;
 type Row<T extends TableName> = Tables[T][number];
 
-const TABLES: TableName[] = ["customer", "order", "order_line", "payment", "expense_category", "expense", "design", "setting"];
+const TABLES: TableName[] = ["customer", "order", "order_line", "payment", "expense_category", "expense", "design", "setting", "product", "blank"];
 const PK: Record<TableName, string> = {
   customer: "id",
   order: "id",
@@ -47,6 +49,8 @@ const PK: Record<TableName, string> = {
   expense: "id",
   design: "id",
   setting: "key",
+  product: "id",
+  blank: "id",
 };
 
 export const store: Tables = {
@@ -58,6 +62,8 @@ export const store: Tables = {
   expense: [],
   design: [],
   setting: [],
+  product: [],
+  blank: [],
 };
 
 // ---------------------------------------------------------------------------

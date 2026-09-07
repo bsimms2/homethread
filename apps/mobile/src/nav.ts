@@ -6,6 +6,8 @@ export type OrdersStackParamList = {
   OrderDetail: { orderId: string };
   Customers: undefined;
   Designs: undefined;
+  Blanks: undefined;
+  Products: undefined;
 };
 
 export type ExpensesStackParamList = {
