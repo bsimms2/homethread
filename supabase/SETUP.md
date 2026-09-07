@@ -29,23 +29,24 @@ Redeploy with the last command whenever `supabase/functions/read-receipt/index.t
 ## 3. Auth settings
 
 Dashboard → **Authentication → URL Configuration**:
-- **Site URL**: the address the site is hosted at (e.g. `https://homethread.pages.dev`).
-- **Redirect URLs**: add the same address, and `http://localhost:8081` for local testing.
+- **Site URL**: `https://bsimms2.github.io/homethread/`
+- **Redirect URLs**: `https://bsimms2.github.io/homethread/**` and `http://localhost:8081/**` for local testing.
 
 Magic links only work for addresses listed here. Email provider is on by default.
 
 ## 4. Hosting the site
 
-The app is a static site: `apps/mobile/dist/` after
+Hosted on GitHub Pages from the public repo https://github.com/bsimms2/homethread
+(branch `gh-pages`). **Live at https://bsimms2.github.io/homethread/**
+
+Publish an update (builds with base path `/homethread`, pushes `gh-pages`):
 
 ```
-cd C:\Dev\EmbroideryApp\apps\mobile
-npx expo export --platform web
+cd C:\Dev\EmbroideryApp
+bash tools/deploy_web.sh
 ```
 
-Any static host works. Cloudflare Pages or Netlify: create a project, drag the `dist`
-folder in, done. Updates = export again, drag again (or wire the CLI). Then put the
-resulting URL in step 3.
+Live about a minute later; she just refreshes.
 
 ## 5. On her phone
 
