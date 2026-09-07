@@ -217,8 +217,10 @@ def load_products(ws) -> list[dict]:
     return out
 
 
-def pick_blank(product: str, config: str, blanks: list[dict]):
-    """Best-effort: which blank did this order use? Type from the product, style from the configuration."""
+def pick_blank(product: str, config: str, qty: int, blanks: list[dict], used: dict):
+    """Which blank did this order use? Type from the product, style from the
+    configuration, then FIFO across packs of that style (oldest pack until it's
+    empty, then the next). `used` tracks units already assigned in this run."""
     p = product.lower()
     c = config.lower()
     candidates = [b for b in blanks if b["type"].lower().split()[0] in p or p.split()[0] in b["type"].lower()]
@@ -228,18 +230,31 @@ def pick_blank(product: str, config: str, blanks: list[dict]):
         "linen": "linen", "white": "white", "stripe": "stripe", "striped": "stripe", "plaid": "plaid",
         "gingham": "gingham", "toile": "toile", "seersucker": "seersucker", "pink": "pink", "blue": "blue",
     }
+    hits = []
     for word, key in style_words.items():
-        if re.search(rf"\b{word}\b", c):
+        if re.search("(?<![a-z])" + re.escape(word) + "(?![a-z])", c):
             hits = [b for b in candidates if key in b["style"].lower()]
             if hits:
-                # oldest purchase first (FIFO)
-                return sorted(hits, key=lambda b: b["purchased_on"] or "")[0]
-    return sorted(candidates, key=lambda b: b["purchased_on"] or "")[0] if len(candidates) == 1 else None
+                break
+    if not hits:
+        if len({(b["type"].lower(), b["style"].lower()) for b in candidates}) == 1:
+            hits = candidates
+        else:
+            return None
+    hits = sorted(hits, key=lambda b: b["purchased_on"] or "")
+    for b in hits:
+        if b["qty"] + b["adjust"] - used.get(b["id"], 0) >= qty:
+            used[b["id"]] = used.get(b["id"], 0) + qty
+            return b
+    b = hits[-1]  # everything's short; charge the newest pack and let it show negative
+    used[b["id"]] = used.get(b["id"], 0) + qty
+    return b
 
 
 def load_orders(ws, blanks: list[dict], products: list[dict]):
     customers, orders, lines, payments = {}, [], [], []
-    for r in sheet_rows(ws):
+    used: dict = {}
+    for r in sorted(sheet_rows(ws), key=lambda r: (iso(r.get("Order Date")) or "9999", str(r.get("Order #") or ""))):
         d = iso(r.get("Order Date"))
         cust = s(r.get("Customer / Gift"))
         if not d or not cust:
@@ -272,7 +287,7 @@ def load_orders(ws, blanks: list[dict], products: list[dict]):
         if completed and not delivered:
             notes.append(f"Finished {completed}")
 
-        blank = pick_blank(product, config, blanks)
+        blank = pick_blank(product, config, qty, blanks, used)
         unit_cost = cents(r.get("Blank Cost / Unit ($)")) or (blank["unit_cost"] if blank else 0)
         prod = next((p for p in products if p["name"].lower() == product.lower()), None)
 

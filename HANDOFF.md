@@ -15,9 +15,13 @@
 > Her real business (from `Homethread.xlsx` on her flash drive, copy in the session
 > scratchpad): product price list (wreath sash $20–25, towels, mahjong bags), blank
 > inventory with cost per blank, startup-cost payback, purchased Etsy designs + 7
-> monogram fonts. **Next build:** price list, blanks inventory, startup payback on
-> Home, and a `tools/homethread_import.py` that converts her workbook straight to the
-> app's CSVs. Stitch-count quoting is not how she prices; keep it but de-emphasise.
+> monogram fonts. **Built 2026-09-07:** price list (`product`), blank inventory (`blank`,
+> remaining derived from order lines), `expense.is_startup` + payback card on Home,
+> `tools/homethread_import.py` loads her workbook + flash-drive design files straight
+> into Supabase (deterministic `imp-` ids; re-runnable). Loaded 2026-09-07: 26 orders,
+> 25 startup purchases ($1,448.06), 17 blank packs, 10 products, 10 designs.
+> Stitch-count quoting is not how she prices; it's still there but secondary.
+> Supabase CLI gotcha: `db query` args must be ONE line and < ~2.5 KB (npx .cmd shim).
 
 **Read this first.** Written for a fresh session with no memory of the previous ones.
 
