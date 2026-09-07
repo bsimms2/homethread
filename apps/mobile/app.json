@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "HomeThread",
+    "slug": "homethread",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#faf7f2",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "HomeThread",
+      "shortName": "HomeThread",
+      "themeColor": "#b5533c",
+      "backgroundColor": "#faf7f2",
+      "display": "standalone"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.brendansimms.homethread",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Take a photo of a receipt to record an expense.",
+        "NSPhotoLibraryUsageDescription": "Pick a receipt photo to record an expense."
+      }
+    },
+    "android": {
+      "package": "com.brendansimms.homethread"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Take a photo of a receipt to record an expense."
+        }
+      ]
+    ],
+    "experiments": {
+      "baseUrl": "/homethread"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+Order,Customer,Date,Due,Status,Item,Qty,Price,Cost,Stitches,Paid,Method,Paid On,Notes
+1,Jane Doe,2026-08-01,2026-08-10,delivered,Mallard hat,2,25.00,6.50,8200,50.00,Venmo,2026-08-09,navy caps
+1,Jane Doe,2026-08-01,,,Monogram towel,1,18.00,4.00,,,,,
+,Bob Smith,2026-08-03,,paid,Buck cap,1,30.00,7.00,,,cash,,
+,Ann Lee,2026-08-15,2026-08-25,confirmed,Wood duck shirt,1,28.00,7.00,,,,,still owes
