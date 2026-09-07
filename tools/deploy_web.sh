@@ -18,7 +18,7 @@ REMOTE="$(git -C ../.. remote get-url origin)"
 cd dist
 git init -q -b gh-pages
 git add -A
-git -c user.name="deploy" -c user.email="deploy@homethread" -c commit.gpgsign=false \ commit -q -m "Deploy $(date -u +%Y-%m-%dT%H:%MZ)"
+git -c user.name="deploy" -c user.email="deploy@homethread" commit -q -m "Deploy $(date -u +%Y-%m-%dT%H:%MZ)"
 git push -f -q "$REMOTE" gh-pages:gh-pages
 cd ..
 rm -rf dist/.git
