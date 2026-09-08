@@ -80,7 +80,7 @@ export function ExpenseEditScreen() {
 
   async function save() {
     if (saving) return;
-    if (amount <= 0) return Alert.alert("Amount", "Enter what was paid.");
+    if (amount === 0) return Alert.alert("Amount", "Enter what was paid (negative for a refund).");
     if (!isIsoDate(spentOn)) return Alert.alert("Date", "Use YYYY-MM-DD.");
     setSaving(true);
     try {

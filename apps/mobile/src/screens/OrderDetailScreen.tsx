@@ -28,8 +28,8 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
 const NEXT_LABEL: Partial<Record<OrderStatus, string>> = {
   quote: "Customer said yes",
   confirmed: "Start stitching",
-  in_progress: "Mark ready",
-  done: "Delivered",
+  in_progress: "Made, ready for pickup",
+  done: "Picked up / delivered",
 };
 
 export function OrderDetailScreen() {

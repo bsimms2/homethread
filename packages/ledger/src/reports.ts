@@ -114,12 +114,19 @@ export function profitAndLoss(
 export interface Payback {
   /** Everything flagged startup, all time. */
   startupTotal: Cents;
-  /** All-time revenue minus all-time operating expenses, floored at zero. */
+  /** Cash actually received, all time. An order only counts once it's paid. */
+  cashReceived: Cents;
+  /** All-time operating expenses. */
+  operatingExpenses: Cents;
+  /** cashReceived minus operating expenses, floored at zero, capped at the total. */
   recovered: Cents;
   remaining: Cents;
 }
 
-/** How much of the initial investment the business has earned back so far. */
+/**
+ * How much of the initial investment the business has earned back so far.
+ * Cash basis on purpose: a delivered-but-unpaid order hasn't paid anything off.
+ */
 export function startupPayback(
   orders: Order[],
   lines: OrderLine[],
@@ -128,8 +135,14 @@ export function startupPayback(
 ): Payback {
   const all = profitAndLoss({ from: "0000-01-01", to: "9999-12-31" }, orders, lines, payments, expenses);
   const startupTotal = expenses.filter((e) => e.isStartup).reduce((s, e) => s + e.amount, 0);
-  const recovered = Math.min(startupTotal, Math.max(0, all.netIncome));
-  return { startupTotal, recovered, remaining: startupTotal - recovered };
+  const recovered = Math.min(startupTotal, Math.max(0, all.cashReceived - all.expenses));
+  return {
+    startupTotal,
+    cashReceived: all.cashReceived,
+    operatingExpenses: all.expenses,
+    recovered,
+    remaining: startupTotal - recovered,
+  };
 }
 
 export interface BlankStock {

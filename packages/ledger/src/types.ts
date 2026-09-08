@@ -24,11 +24,25 @@ export const ORDER_STATUSES: OrderStatus[] = [
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   quote: "Quote",
-  confirmed: "Confirmed",
+  confirmed: "To make",
   in_progress: "Stitching",
-  done: "Ready",
-  delivered: "Delivered",
+  done: "Ready for pickup",
+  delivered: "Finished",
   cancelled: "Cancelled",
+};
+
+/** The three stages she thinks in. Quotes and cancelled orders are outside them. */
+export type Stage = "to_make" | "ready" | "finished";
+export const STAGE_OF: Partial<Record<OrderStatus, Stage>> = {
+  confirmed: "to_make",
+  in_progress: "to_make",
+  done: "ready",
+  delivered: "finished",
+};
+export const STAGE_LABEL: Record<Stage, string> = {
+  to_make: "To make",
+  ready: "Made, not picked up",
+  finished: "Finished",
 };
 
 /** Statuses that count toward revenue. A quote or cancelled order never does. */

@@ -124,17 +124,21 @@ describe("profitAndLoss", () => {
     expect(s[8]?.net).toBe(4000);
     expect(s[0]?.label).toBe("Jan");
   });
-  it("startup payback comes out of all-time net", () => {
+  it("startup payback counts cash received, not billed revenue", () => {
     const pb = startupPayback(orders, lines, payments, expenses);
     expect(pb.startupTotal).toBe(70000);
-    expect(pb.recovered).toBe(10000 - 2999);
-    expect(pb.remaining).toBe(70000 - 7001);
+    expect(pb.cashReceived).toBe(6000); // $10,000 billed, but only $6,000 paid
+    expect(pb.operatingExpenses).toBe(2999);
+    expect(pb.recovered).toBe(6000 - 2999);
+    expect(pb.remaining).toBe(70000 - 3001);
   });
   it("payback never exceeds the startup total or goes negative", () => {
     const pb = startupPayback(orders, lines, payments, [exp(100, "2026-01-01", null, true)]);
-    expect(pb).toEqual({ startupTotal: 100, recovered: 100, remaining: 0 });
+    expect(pb.recovered).toBe(100);
+    expect(pb.remaining).toBe(0);
     const none = startupPayback([], [], [], [exp(500, "2026-01-01", null, true), exp(900, "2026-01-02")]);
-    expect(none).toEqual({ startupTotal: 500, recovered: 0, remaining: 500 });
+    expect(none.recovered).toBe(0);
+    expect(none.remaining).toBe(500);
   });
 });
 
