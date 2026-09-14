@@ -2,7 +2,7 @@ import React from "react";
 import { ActivityIndicator, Platform, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import type { Session } from "@supabase/supabase-js";
-import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import { DefaultTheme, NavigationContainer, type LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -43,9 +43,46 @@ const navTheme = {
 
 const stackOptions = {
   headerStyle: { backgroundColor: colors.card },
-  headerTintColor: colors.text,
-  headerTitleStyle: { fontWeight: "700" as const },
+  headerTintColor: colors.accent,
+  headerTitleStyle: { fontWeight: "700" as const, color: colors.text },
+  headerBackVisible: true,
+  headerBackTitle: "Back",
   contentStyle: { backgroundColor: colors.bg },
+};
+
+/**
+ * URL <-> screen mapping. Gives the browser (and the iPhone's swipe-from-the-
+ * left-edge gesture in Home Screen mode) a real history to go back through,
+ * and lets a refresh land on the same screen.
+ */
+const linking: LinkingOptions<TabParamList> = {
+  prefixes: Platform.OS === "web" ? [window.location.origin + "/homethread", window.location.origin] : [],
+  config: {
+    screens: {
+      Home: "",
+      OrdersTab: {
+        path: "orders",
+        screens: {
+          OrdersList: "",
+          OrderDetail: "order/:orderId",
+          OrderEdit: "edit/:orderId?",
+          Customers: "customers",
+          Designs: "designs",
+          Blanks: "blanks",
+          Products: "price-list",
+        },
+      },
+      ExpensesTab: {
+        path: "expenses",
+        screens: {
+          ExpensesList: "",
+          ExpenseEdit: "edit/:expenseId?",
+        },
+      },
+      Reports: "reports",
+      Settings: "settings",
+    },
+  },
 };
 
 function OrdersNav() {
@@ -78,7 +115,7 @@ const icon = (glyph: string) =>
 
 function Tabs() {
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer theme={navTheme} linking={linking}>
       <Tab.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: colors.card },

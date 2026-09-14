@@ -172,7 +172,10 @@ export function OrderDetailScreen() {
         )}
       </Card>
 
-      <Button title="Delete order" kind="danger" onPress={confirmDelete} />
+      <Row style={{ gap: space.sm }}>
+        <Button title="‹ All orders" kind="secondary" onPress={() => nav.navigate("OrdersList")} style={{ flex: 1 }} />
+        <Button title="Delete order" kind="danger" onPress={confirmDelete} style={{ flex: 1 }} />
+      </Row>
     </ScrollView>
   );
 }

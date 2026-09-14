@@ -270,8 +270,9 @@ export function OrderEditScreen() {
           </Row>
         </Card>
       </ScrollView>
-      <View style={s.footer}>
-        <Button title={existing ? "Save changes" : "Save order"} onPress={save} />
+      <View style={[s.footer, { flexDirection: "row", gap: space.sm }]}>
+        <Button title="Cancel" kind="ghost" onPress={() => (nav.canGoBack() ? nav.goBack() : nav.navigate("OrdersList"))} style={{ flex: 1 }} />
+        <Button title={existing ? "Save changes" : "Save order"} onPress={save} style={{ flex: 2 }} />
       </View>
 
       <Modal visible={picker !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={closePicker}>

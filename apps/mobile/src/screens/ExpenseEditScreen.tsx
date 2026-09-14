@@ -187,8 +187,9 @@ export function ExpenseEditScreen() {
         </Card>
         {existing && <Button title="Delete expense" kind="danger" onPress={confirmDelete} />}
       </ScrollView>
-      <View style={s.footer}>
-        <Button title="Save expense" onPress={() => void save()} busy={saving} />
+      <View style={[s.footer, { flexDirection: "row", gap: space.sm }]}>
+        <Button title="Cancel" kind="ghost" onPress={() => (nav.canGoBack() ? nav.goBack() : nav.navigate("ExpensesList"))} style={{ flex: 1 }} />
+        <Button title="Save expense" onPress={() => void save()} busy={saving} style={{ flex: 2 }} />
       </View>
     </KeyboardAvoidingView>
   );
